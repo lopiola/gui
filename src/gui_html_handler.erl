@@ -1,4 +1,4 @@
--module(opn_html_handler).
+-module(gui_html_handler).
 
 -include("gui.hrl").
 -include_lib("ctool/include/logging.hrl").
