@@ -1,0 +1,27 @@
+%%%-------------------------------------------------------------------
+%%% @author Lukasz Opiola
+%%% @copyright (C) 2015 ACK CYFRONET AGH
+%%% This software is released under the MIT license
+%%% cited in 'LICENSE.txt'.
+%%% @end
+%%%-------------------------------------------------------------------
+%%% @doc
+%%% This file describes gui library application.
+%%% @end
+%%%-------------------------------------------------------------------
+
+{application, ctool, [
+    {description, "Common GUI lib for onedata project"},
+    {vsn, git},
+    {registered, []},
+    {applications, [
+        kernel,
+        stdlib,
+        ssl2,
+        ranch,
+        cowboy
+    ]},
+
+    {env, [
+    ]}
+]}.
