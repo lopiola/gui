@@ -17,10 +17,10 @@ Including *gui* in a project will cause it to automatically include following de
 #### 2. Functionalities
 *gui* incorporates following functionalities:
 
-* Full framework for writing responsive GUI based on Ember.JS and WebSockets, \
+* Full framework for writing responsive GUI based on Ember.JS and WebSockets,
 introducing an abstraction layer over cowboy.
 * Many utility functions connected with GUI.
-* *sync* module that allows for recompiling any erl files and updating of GUI \
+* *sync* module that allows for recompiling any erl files and updating of GUI
 static files in runtime.
 
 
