@@ -45,7 +45,7 @@
 init(_, Req, Opts) ->
     try
         {FullPath, _} = cowboy_req:path(Req),
-        case opn_html_handler:maybe_handle_html_req(FullPath) of
+        case gui_html_handler:maybe_handle_html_req(FullPath) of
             {finish, NewReq} ->
                 {shutdown, NewReq, no_state};
             {continue, NewReq} ->

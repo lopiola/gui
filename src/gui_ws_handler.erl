@@ -16,7 +16,7 @@ init({_, http}, _Req, _Opts) ->
 
 websocket_init(_TransportName, Req, _Opts) ->
 %%     erlang:start_timer(1000, opn_cowboy_bridge:get_socket_pid(), roz),
-    case opn_html_handler:is_html_req(Req) of
+    case gui_html_handler:is_html_req(Req) of
         true ->
             % Initialize context
             g_ctx:init(Req),
@@ -30,7 +30,7 @@ websocket_init(_TransportName, Req, _Opts) ->
 websocket_handle({text, MsgJSON}, Req, State) ->
     Msg = g_str:decode_from_json(MsgJSON),
     ?dump(Msg),
-    Resp = opn_html_handler:handle_ws_req(Msg),
+    Resp = gui_html_handler:handle_ws_req(Msg),
     ?dump(Resp),
     RespJSON = g_str:encode_to_json(Resp),
     {reply, {text, RespJSON}, Req, State};

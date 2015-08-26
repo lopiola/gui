@@ -37,7 +37,7 @@
 -define(GUI_CONFIG_LOCATION, "rel/gui.config").
 
 %% API
--export([reset/0, recompile/2]).
+-export([reset/0, recompile/1, recompile/2, recompile/3]).
 
 %%%===================================================================
 %%% API
@@ -68,6 +68,15 @@ find_all_files(Where, NameRegexp, RelativePaths) ->
     end.
 
 
+find_all_dirs(Where, RelativePaths) ->
+    case RelativePaths of
+        false ->
+            string:tokens(shell_cmd(["ls", "-d", Where ++ "/*/"]), "\n");
+        true ->
+            string:tokens(shell_cmd(["cd", Where, "&&", "ls", "-d", "*/"]), "\n")
+    end.
+
+
 should_update(FilePath, CurrentMD5) ->
     case ets:info(?MD5_ETS) of
         undefined ->
@@ -88,8 +97,25 @@ update_file_md5(FilePath, CurrentMD5) ->
     ets:insert(?MD5_ETS, {FilePath, CurrentMD5}).
 
 
-recompile(ProjectDir, [First | _] = DirsToRecompile) when is_list(First) ->
-    UpdateErlFilesRes = update_erl_files(ProjectDir, DirsToRecompile),
+recompile(ProjectDir) ->
+    recompile(ProjectDir, [], []).
+
+recompile(ProjectDir, DirsToRecompileArg) ->
+    recompile(ProjectDir, DirsToRecompileArg, []).
+
+recompile(ProjectDir, DirsToRecompileArg, IncludeDirsArg) ->
+    EnsureListOfLists = fun(List) ->
+        case List of
+            [] ->
+                [];
+            [H | _] when is_list(H) ->
+                DirsToRecompileArg;
+            Other -> [Other]
+        end
+    end,
+    DirsToRecompile = EnsureListOfLists(DirsToRecompileArg),
+    IncludeDirs = EnsureListOfLists(IncludeDirsArg),
+    UpdateErlFilesRes = update_erl_files(ProjectDir, DirsToRecompile, IncludeDirs),
     UpdateStaticFilesRes = update_static_files(ProjectDir),
     case UpdateErlFilesRes andalso UpdateStaticFilesRes of
         true ->
@@ -98,13 +124,10 @@ recompile(ProjectDir, [First | _] = DirsToRecompile) when is_list(First) ->
         false ->
             ?INFO_MSG("There were errors."),
             error
-    end;
-
-recompile(ProjectDir, Dir) ->
-    recompile(ProjectDir, [Dir]).
+    end.
 
 
-update_erl_files(ProjectDir, DirsToRecompile) ->
+update_erl_files(ProjectDir, DirsToRecompile, UserIncludes) ->
     GuiConfigPath = filename:join([ProjectDir, ?GUI_CONFIG_LOCATION]),
     {ok, GuiConfig} = file:consult(GuiConfigPath),
     SourcePagesDir = proplists:get_value(source_pages_dir, GuiConfig),
@@ -120,7 +143,19 @@ update_erl_files(ProjectDir, DirsToRecompile) ->
             false ->
                 false;
             true ->
-                update_erl_file(File, [{i, filename:join(ProjectDir, "include")}, report])
+                ProjIncludes = filename:join(ProjectDir, "include"),
+                Deps = find_all_dirs(filename:join(ProjectDir, "deps"), false),
+                DepsIncludes = lists:map(
+                    fun(DepPath) ->
+                        filename:join(DepPath, "include")
+                    end, Deps),
+                AllIncludes = lists:map(
+                    fun(DepPath) ->
+                        {i, DepPath}
+                    end, ProjIncludes ++ DepsIncludes ++ UserIncludes),
+                ?dump(AllIncludes),
+                % TODO ZBADAC
+                update_erl_file(File, AllIncludes ++ [report])
         end
     end, true, FilesToCheck).
 
