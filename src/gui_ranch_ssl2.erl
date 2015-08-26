@@ -10,7 +10,7 @@
 %%% For function documentation check Ranch's ranch_transport docs.
 %%% @end
 %%%-------------------------------------------------------------------
--module(ranch_ssl2).
+-module(gui_ranch_ssl2).
 -author("Konrad Zemek").
 
 -behaviour(ranch_transport).

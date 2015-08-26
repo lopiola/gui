@@ -10,7 +10,7 @@
 %%% @end
 %%%-------------------------------------------------------------------
 
-{application, ctool, [
+{application, gui, [
     {description, "Common GUI lib for onedata project"},
     {vsn, git},
     {registered, []},
